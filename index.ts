@@ -121,8 +121,8 @@ export async function fetchPostFromSlug(slug: string) {
   const image = parseImage(imageData.description.rendered);
 
   return {
-    url: story.link,
-    title: story.title.rendered,
+    url: story.link as string,
+    title: story.title.rendered as string,
     coauthors: joinListOfStrings(
       story.coauthors.map((author) => author.display_name)
     ),
