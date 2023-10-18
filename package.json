@@ -4,6 +4,12 @@
   "author": {
     "name": "Eric Lau"
   },
+  "scripts": {
+    "prepare": "tsc"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "main": "index.ts",
   "type": "module",
   "devDependencies": {
