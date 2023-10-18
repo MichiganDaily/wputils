@@ -1,6 +1,39 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
 
+export type Image = {
+  html: string;
+  caption?: string;
+  width: string | undefined;
+  height: string | undefined;
+  src: string | undefined;
+  alt: string | undefined;
+  sizes: string | undefined;
+  srcset: string | undefined;
+  permalink: string | undefined;
+};
+
+export type WordPressAuthor = {
+  display_name: string;
+  user_nicename: string;
+};
+
+export type WordPressFeaturedMedia = {
+  embeddable: boolean;
+  href: string;
+};
+
+export type WordPressArticle = {
+  coauthors: WordPressAuthor[];
+  link: string;
+  title: {
+    rendered: string;
+  };
+  _links: {
+    "wp:featuredmedia": WordPressFeaturedMedia[];
+  };
+}
+
 function trim(caption: string): string {
   const trimmed = caption
     .replace("Photo Courtesy of", "")
@@ -35,7 +68,7 @@ function parseCaption(caption: HTMLElement | null): string {
   return trim(parsableText);
 }
 
-export function parseImage(html: string) {
+function parseImage(html: string): Image {
   const element = parse(html).querySelector("img")!;
   return {
     html: element.toString(),
@@ -52,7 +85,7 @@ export function parseImage(html: string) {
   };
 }
 
-export function joinListOfStrings(strings: string[]) {
+function joinListOfStrings(strings: string[]) {
   if (strings.length === 0) {
     return "";
   }
@@ -63,4 +96,36 @@ export function joinListOfStrings(strings: string[]) {
     : `${deduplicatedStrings
         .slice(0, -1)
         .join(", ")} and ${deduplicatedStrings.at(-1)}`;
+}
+
+export async function fetchPostFromSlug(slug: string) {
+  const url = new URL("https://michigandaily.com/wp-json/wp/v2/posts");
+  url.searchParams.set("slug", slug);
+  url.searchParams.set("_fields", "coauthors,link,title,_links");
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json() as Array<WordPressArticle>;
+  if (data.length === 0) {
+    return null;
+  }
+
+  const story = data.at(0);
+  const [feature] = story._links["wp:featuredmedia"];
+
+  const imageRequest = await fetch(`${feature.href}?_fields=description`);
+  const imageData = await imageRequest.json();
+  const image = parseImage(imageData.description.rendered);
+
+  return {
+    url: story.link,
+    title: story.title.rendered,
+    coauthors: joinListOfStrings(
+      story.coauthors.map((author) => author.display_name)
+    ),
+    image: image
+  }
 }
