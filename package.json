@@ -1,0 +1,14 @@
+{
+  "name": "@michigandaily/wputils",
+  "author": {
+    "name": "Eric Lau"
+  },
+  "main": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "node-html-parser": "^6.1.10"
+  }
+}
