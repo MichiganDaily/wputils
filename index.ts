@@ -98,8 +98,14 @@ function joinListOfStrings(strings: string[]) {
         .join(", ")} and ${deduplicatedStrings.at(-1)}`;
 }
 
-export async function fetchPostFromSlug(slug: string) {
-  const url = new URL("https://michigandaily.com/wp-json/wp/v2/posts");
+export async function fetchPostFromSlug(slug: string, isTest: boolean = false) {
+  let url;
+  if (isTest) {
+    url = new URL("https://md-clone.newspackstaging.com/wp-json/wp/v2/posts");
+  }
+  else {
+    url = new URL("https://michigandaily.com/wp-json/wp/v2/posts");
+  }
   url.searchParams.set("slug", slug);
   url.searchParams.set("_fields", "coauthors,link,title,_links");
 
