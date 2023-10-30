@@ -32,7 +32,7 @@ export type WordPressArticle = {
   _links: {
     "wp:featuredmedia": WordPressFeaturedMedia[];
   };
-}
+};
 
 function trim(caption: string): string {
   const trimmed = caption
@@ -98,6 +98,34 @@ function joinListOfStrings(strings: string[]) {
         .join(", ")} and ${deduplicatedStrings.at(-1)}`;
 }
 
+export async function fetchImageFromSlug(slug: string) {
+  const url = new URL("https://michigandaily.com/wp-json/wp/v2/media");
+  url.searchParams.set("media_type", "image");
+  url.searchParams.set("slug", slug);
+  url.searchParams.set("_fields", "description");
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    return null;
+  }
+
+  const json = (await response.json()) as {
+    description: { rendered: string };
+  }[];
+
+  if (json === undefined || json === null || json.length === 0) {
+    return null;
+  }
+
+  const image = json.at(0);
+
+  if (!image) {
+    return null;
+  }
+
+  return parseImage(image.description.rendered);
+}
+
 export async function fetchPostFromSlug(slug: string) {
   const url = new URL("https://michigandaily.com/wp-json/wp/v2/posts");
   url.searchParams.set("slug", slug);
@@ -108,7 +136,7 @@ export async function fetchPostFromSlug(slug: string) {
     return null;
   }
 
-  const data = await response.json() as Array<WordPressArticle>;
+  const data = (await response.json()) as Array<WordPressArticle>;
   if (data.length === 0) {
     return null;
   }
@@ -126,6 +154,6 @@ export async function fetchPostFromSlug(slug: string) {
     coauthors: joinListOfStrings(
       story.coauthors.map((author) => author.display_name)
     ),
-    image: image
-  }
+    image: image,
+  };
 }
