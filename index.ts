@@ -142,9 +142,18 @@ export async function fetchImageFromSlug(
   return parseImage(image.description.rendered, { fullCaption });
 }
 
-export async function fetchPostFromSlug(slug: string, isTest: boolean = false) {
+export async function fetchPostFromSlug(
+  slug: string,
+  {
+    useTestSite,
+    getFullImageCaption,
+  }: { useTestSite: boolean; getFullImageCaption: boolean } = {
+    useTestSite: false,
+    getFullImageCaption: false,
+  }
+) {
   const url = new URL(
-    isTest
+    useTestSite
       ? "https://md-clone.newspackstaging.com/wp-json/wp/v2/posts"
       : "https://michigandaily.com/wp-json/wp/v2/posts"
   );
@@ -166,7 +175,9 @@ export async function fetchPostFromSlug(slug: string, isTest: boolean = false) {
 
   const imageRequest = await fetch(`${feature.href}?_fields=description`);
   const imageData = await imageRequest.json();
-  const image = parseImage(imageData.description.rendered);
+  const image = parseImage(imageData.description.rendered, {
+    fullCaption: getFullImageCaption,
+  });
 
   return {
     url: story.link as string,
