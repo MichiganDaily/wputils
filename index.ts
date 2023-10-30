@@ -50,9 +50,16 @@ function trim(caption: string): string {
     : trimmed;
 }
 
-function parseCaption(caption: HTMLElement | null): string {
+function parseCaption(
+  caption: HTMLElement | null,
+  { fullCaption }: { fullCaption: boolean } = { fullCaption: false }
+): string {
   if (!caption) {
     return "";
+  }
+
+  if (fullCaption) {
+    return caption.innerHTML;
   }
 
   const italicizedElement = caption.querySelector("i");
@@ -68,12 +75,18 @@ function parseCaption(caption: HTMLElement | null): string {
   return trim(parsableText);
 }
 
-function parseImage(html: string): Image {
+function parseImage(
+  html: string,
+  { fullCaption }: { fullCaption: boolean } = { fullCaption: false }
+): Image {
   const element = parse(html).querySelector("img")!;
   return {
     html: element.toString(),
     caption: parseCaption(
-      parse(element.getAttribute("data-image-caption") ?? "").querySelector("p")
+      parse(element.getAttribute("data-image-caption") ?? "").querySelector(
+        "p"
+      ),
+      { fullCaption }
     ),
     width: element.getAttribute("width"),
     height: element.getAttribute("height"),
@@ -98,7 +111,10 @@ function joinListOfStrings(strings: string[]) {
         .join(", ")} and ${deduplicatedStrings.at(-1)}`;
 }
 
-export async function fetchImageFromSlug(slug: string) {
+export async function fetchImageFromSlug(
+  slug: string,
+  { fullCaption }: { fullCaption: boolean } = { fullCaption: false }
+) {
   const url = new URL("https://michigandaily.com/wp-json/wp/v2/media");
   url.searchParams.set("media_type", "image");
   url.searchParams.set("slug", slug);
@@ -123,7 +139,7 @@ export async function fetchImageFromSlug(slug: string) {
     return null;
   }
 
-  return parseImage(image.description.rendered);
+  return parseImage(image.description.rendered, { fullCaption });
 }
 
 export async function fetchPostFromSlug(slug: string, isTest: boolean = false) {
