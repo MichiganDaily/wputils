@@ -52,13 +52,13 @@ function trim(caption: string): string {
 
 function parseCaption(
   caption: HTMLElement | null,
-  { fullCaption }: { fullCaption: boolean } = { fullCaption: false }
+  { getFullCaption }: { getFullCaption: boolean } = { getFullCaption: false }
 ): string {
   if (!caption) {
     return "";
   }
 
-  if (fullCaption) {
+  if (getFullCaption) {
     return caption.innerHTML;
   }
 
@@ -77,7 +77,7 @@ function parseCaption(
 
 function parseImage(
   html: string,
-  { fullCaption }: { fullCaption: boolean } = { fullCaption: false }
+  { getFullCaption }: { getFullCaption?: boolean } = { getFullCaption: false }
 ): Image {
   const element = parse(html).querySelector("img")!;
   return {
@@ -86,7 +86,7 @@ function parseImage(
       parse(element.getAttribute("data-image-caption") ?? "").querySelector(
         "p"
       ),
-      { fullCaption }
+      { getFullCaption }
     ),
     width: element.getAttribute("width"),
     height: element.getAttribute("height"),
@@ -113,12 +113,16 @@ function joinListOfStrings(strings: string[]) {
 
 export async function fetchImageFromSlug(
   slug: string,
-  { fullCaption }: { fullCaption: boolean } = { fullCaption: false }
+  { getFullCaption, useCache }: { getFullCaption?: boolean; useCache?: boolean; } = { getFullCaption: false, useCache: true }
 ) {
   const url = new URL("https://michigandaily.com/wp-json/wp/v2/media");
   url.searchParams.set("media_type", "image");
   url.searchParams.set("slug", slug);
   url.searchParams.set("_fields", "description");
+
+  if (!useCache) {
+    url.searchParams.set("time", new Date().toISOString());
+  }
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -139,16 +143,22 @@ export async function fetchImageFromSlug(
     return null;
   }
 
-  return parseImage(image.description.rendered, { fullCaption });
+  return parseImage(image.description.rendered, { getFullCaption });
 }
 
 export async function fetchPostFromSlug(
   slug: string,
   {
     useTestSite,
+    useCache,
     getFullImageCaption,
-  }: { useTestSite: boolean; getFullImageCaption: boolean } = {
+  }: {
+    useTestSite?: boolean;
+    useCache?: boolean;
+    getFullImageCaption?: boolean;
+  } = {
     useTestSite: false,
+    useCache: true,
     getFullImageCaption: false,
   }
 ) {
@@ -159,6 +169,9 @@ export async function fetchPostFromSlug(
   );
   url.searchParams.set("slug", slug);
   url.searchParams.set("_fields", "coauthors,link,title,_links");
+  if (!useCache) {
+    url.searchParams.set("time", new Date().toISOString());
+  }
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -173,10 +186,17 @@ export async function fetchPostFromSlug(
   const story = data.at(0);
   const [feature] = story._links["wp:featuredmedia"];
 
-  const imageRequest = await fetch(`${feature.href}?_fields=description`);
+  const params = new URLSearchParams();
+  params.set("_fields", "description");
+
+  if (!useCache) {
+    params.set("time", new Date().toISOString());
+  }
+
+  const imageRequest = await fetch(`${feature.href}?${params.toString()}`);
   const imageData = await imageRequest.json();
   const image = parseImage(imageData.description.rendered, {
-    fullCaption: getFullImageCaption,
+    getFullCaption: getFullImageCaption,
   });
 
   return {
