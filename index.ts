@@ -126,8 +126,12 @@ export async function fetchImageFromSlug(slug: string) {
   return parseImage(image.description.rendered);
 }
 
-export async function fetchPostFromSlug(slug: string) {
-  const url = new URL("https://michigandaily.com/wp-json/wp/v2/posts");
+export async function fetchPostFromSlug(slug: string, isTest: boolean = false) {
+  const url = new URL(
+    isTest
+      ? "https://md-clone.newspackstaging.com/wp-json/wp/v2/posts"
+      : "https://michigandaily.com/wp-json/wp/v2/posts"
+  );
   url.searchParams.set("slug", slug);
   url.searchParams.set("_fields", "coauthors,link,title,_links");
 
