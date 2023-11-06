@@ -99,7 +99,7 @@ export function parseImage(
   };
 }
 
-function parseSlugFromUrl(url: string | undefined | null) {
+export function parseSlugFromUrl(url: string | undefined | null) {
   if (!!url) {
     return url
       .trim()
