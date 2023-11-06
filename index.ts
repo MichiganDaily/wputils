@@ -75,7 +75,7 @@ function parseCaption(
   return trim(parsableText);
 }
 
-function parseImage(
+export function parseImage(
   html: string,
   { getFullCaption }: { getFullCaption?: boolean } = { getFullCaption: false }
 ): Image {
@@ -113,7 +113,13 @@ function joinListOfStrings(strings: string[]) {
 
 export async function fetchImageFromSlug(
   slug: string,
-  { getFullCaption, useCache }: { getFullCaption?: boolean; useCache?: boolean; } = { getFullCaption: false, useCache: true }
+  {
+    getFullCaption,
+    useCache,
+  }: { getFullCaption?: boolean; useCache?: boolean } = {
+    getFullCaption: false,
+    useCache: true,
+  }
 ) {
   const url = new URL("https://michigandaily.com/wp-json/wp/v2/media");
   url.searchParams.set("media_type", "image");
@@ -151,14 +157,17 @@ export async function fetchPostFromSlug(
   {
     useTestSite,
     useCache,
+    getImage,
     getFullImageCaption,
   }: {
     useTestSite?: boolean;
     useCache?: boolean;
+    getImage?: boolean;
     getFullImageCaption?: boolean;
   } = {
     useTestSite: false,
     useCache: true,
+    getImage: true,
     getFullImageCaption: false,
   }
 ) {
@@ -184,20 +193,32 @@ export async function fetchPostFromSlug(
   }
 
   const story = data.at(0);
-  const [feature] = story._links["wp:featuredmedia"];
 
-  const params = new URLSearchParams();
-  params.set("_fields", "description");
+  if (getImage) {
+    const [feature] = story._links["wp:featuredmedia"];
 
-  if (!useCache) {
-    params.set("time", new Date().toISOString());
+    const params = new URLSearchParams();
+    params.set("_fields", "description");
+
+    if (!useCache) {
+      params.set("time", new Date().toISOString());
+    }
+
+    const imageRequest = await fetch(`${feature.href}?${params.toString()}`);
+    const imageData = await imageRequest.json();
+    const image = parseImage(imageData.description.rendered, {
+      getFullCaption: getFullImageCaption,
+    });
+
+    return {
+      url: story.link as string,
+      title: story.title.rendered as string,
+      coauthors: joinListOfStrings(
+        story.coauthors.map((author) => author.display_name)
+      ),
+      image: image,
+    };
   }
-
-  const imageRequest = await fetch(`${feature.href}?${params.toString()}`);
-  const imageData = await imageRequest.json();
-  const image = parseImage(imageData.description.rendered, {
-    getFullCaption: getFullImageCaption,
-  });
 
   return {
     url: story.link as string,
@@ -205,6 +226,5 @@ export async function fetchPostFromSlug(
     coauthors: joinListOfStrings(
       story.coauthors.map((author) => author.display_name)
     ),
-    image: image,
   };
 }
