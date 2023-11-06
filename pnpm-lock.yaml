@@ -5,16 +5,26 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  he:
+    specifier: ^1.2.0
+    version: 1.2.0
   node-html-parser:
     specifier: ^6.1.10
     version: 6.1.10
 
 devDependencies:
+  '@types/he':
+    specifier: ^1.2.2
+    version: 1.2.2
   typescript:
     specifier: ^5.2.2
     version: 5.2.2
 
 packages:
+
+  /@types/he@1.2.2:
+    resolution: {integrity: sha512-v2gT1gRK65k9nz8SVSXo3lh7AHnRPL3mRcYNhhsqL/L2S1xt/MGyEI5a7vJPXWik/IxTtAktXf8/HlCxDR1nsw==}
+    dev: true
 
   /boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
