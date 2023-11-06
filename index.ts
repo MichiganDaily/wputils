@@ -99,7 +99,7 @@ export function parseImage(
   };
 }
 
-function joinListOfStrings(strings: string[]) {
+export function joinListOfStrings(strings: string[]) {
   if (strings.length === 0) {
     return "";
   }
