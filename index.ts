@@ -99,6 +99,18 @@ export function parseImage(
   };
 }
 
+function parseSlugFromUrl(url: string | undefined | null) {
+  if (!!url) {
+    return url
+      .trim()
+      .split("/")
+      .filter((part) => part.length > 0)
+      .at(-1);
+  }
+
+  return undefined;
+}
+
 export function joinListOfStrings(strings: string[]) {
   if (strings.length === 0) {
     return "";
@@ -151,6 +163,11 @@ export async function fetchImageFromSlug(
   }
 
   return parseImage(image.description.rendered, { getFullCaption });
+}
+
+export async function fetchImageFromUrl(url: string) {
+  const slug = parseSlugFromUrl(url);
+  return await fetchImageFromSlug(slug);
 }
 
 export async function fetchPostFromSlug(
@@ -228,4 +245,9 @@ export async function fetchPostFromSlug(
       story.coauthors.map((author) => author.display_name)
     ),
   };
+}
+
+export async function fetchPostFromUrl(url: string) {
+  const slug = parseSlugFromUrl(url);
+  return await fetchPostFromSlug(slug);
 }
