@@ -198,7 +198,7 @@ type PostOptions = {
   useTestSite?: boolean;
   useCache?: boolean;
   getImage?: boolean;
-  getFullImageCaption?: boolean;
+  getImageFullCaption?: boolean;
   useImageLazyLoading?: boolean;
 };
 
@@ -208,7 +208,7 @@ export async function fetchPostFromSlug(
     useTestSite: false,
     useCache: true,
     getImage: true,
-    getFullImageCaption: false,
+    getImageFullCaption: false,
     useImageLazyLoading: true,
   }
 ) {
@@ -248,7 +248,7 @@ export async function fetchPostFromSlug(
     const imageRequest = await fetch(`${feature.href}?${params.toString()}`);
     const imageData = await imageRequest.json();
     const image = parseImage(imageData.description.rendered, {
-      getFullCaption: options.getFullImageCaption,
+      getFullCaption: options.getImageFullCaption,
       useImageLazyLoading: options.useImageLazyLoading,
     });
 
@@ -277,7 +277,7 @@ export async function fetchPostFromUrl(
     useTestSite: false,
     useCache: true,
     getImage: true,
-    getFullImageCaption: false,
+    getImageFullCaption: false,
     useImageLazyLoading: true,
   }
 ) {
