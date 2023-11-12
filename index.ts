@@ -124,12 +124,11 @@ export function joinListOfStrings(strings: string[]) {
         .join(", ")} and ${deduplicatedStrings.at(-1)}`;
 }
 
+type ImageOptions = { getFullCaption?: boolean; useCache?: boolean };
+
 export async function fetchImageFromSlug(
   slug: string,
-  {
-    getFullCaption,
-    useCache,
-  }: { getFullCaption?: boolean; useCache?: boolean } = {
+  { getFullCaption, useCache }: ImageOptions = {
     getFullCaption: false,
     useCache: true,
   }
@@ -165,24 +164,27 @@ export async function fetchImageFromSlug(
   return parseImage(image.description.rendered, { getFullCaption });
 }
 
-export async function fetchImageFromUrl(url: string) {
+export async function fetchImageFromUrl(
+  url: string,
+  options: ImageOptions = {
+    getFullCaption: false,
+    useCache: true,
+  }
+) {
   const slug = parseSlugFromUrl(url);
-  return await fetchImageFromSlug(slug);
+  return await fetchImageFromSlug(slug, options);
 }
+
+type PostOptions = {
+  useTestSite?: boolean;
+  useCache?: boolean;
+  getImage?: boolean;
+  getFullImageCaption?: boolean;
+};
 
 export async function fetchPostFromSlug(
   slug: string,
-  {
-    useTestSite,
-    useCache,
-    getImage,
-    getFullImageCaption,
-  }: {
-    useTestSite?: boolean;
-    useCache?: boolean;
-    getImage?: boolean;
-    getFullImageCaption?: boolean;
-  } = {
+  { useTestSite, useCache, getImage, getFullImageCaption }: PostOptions = {
     useTestSite: false,
     useCache: true,
     getImage: true,
@@ -247,7 +249,15 @@ export async function fetchPostFromSlug(
   };
 }
 
-export async function fetchPostFromUrl(url: string) {
+export async function fetchPostFromUrl(
+  url: string,
+  options: PostOptions = {
+    useTestSite: false,
+    useCache: true,
+    getImage: true,
+    getFullImageCaption: false,
+  }
+) {
   const slug = parseSlugFromUrl(url);
-  return await fetchPostFromSlug(slug);
+  return await fetchPostFromSlug(slug, options);
 }
