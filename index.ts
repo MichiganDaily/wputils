@@ -78,11 +78,21 @@ function parseCaption(
 
 export function parseImage(
   html: string,
-  { getFullCaption }: { getFullCaption?: boolean } = { getFullCaption: false }
+  {
+    getFullCaption,
+    useImageLazyLoading,
+  }: { getFullCaption?: boolean; useImageLazyLoading?: boolean } = {
+    getFullCaption: false,
+    useImageLazyLoading: true,
+  }
 ): Image {
   const element = parse(html).querySelector("img")!;
+
   return {
-    html: element.toString(),
+    html: (useImageLazyLoading
+      ? element
+      : element.removeAttribute("loading")
+    ).toString(),
     caption: parseCaption(
       parse(element.getAttribute("data-image-caption") ?? "").querySelector(
         "p"
@@ -124,13 +134,18 @@ export function joinListOfStrings(strings: string[]) {
         .join(", ")} and ${deduplicatedStrings.at(-1)}`;
 }
 
-type ImageOptions = { getFullCaption?: boolean; useCache?: boolean };
+type ImageOptions = {
+  getFullCaption?: boolean;
+  useCache?: boolean;
+  useLazyLoading?: boolean;
+};
 
 export async function fetchImageFromSlug(
   slug: string,
-  { getFullCaption, useCache }: ImageOptions = {
+  options: ImageOptions = {
     getFullCaption: false,
     useCache: true,
+    useLazyLoading: true,
   }
 ) {
   const url = new URL("https://michigandaily.com/wp-json/wp/v2/media");
@@ -138,7 +153,7 @@ export async function fetchImageFromSlug(
   url.searchParams.set("slug", slug);
   url.searchParams.set("_fields", "description");
 
-  if (!useCache) {
+  if (!options.useCache) {
     url.searchParams.set("time", new Date().toISOString());
   }
 
@@ -161,7 +176,10 @@ export async function fetchImageFromSlug(
     return null;
   }
 
-  return parseImage(image.description.rendered, { getFullCaption });
+  return parseImage(image.description.rendered, {
+    getFullCaption: options.getFullCaption,
+    useImageLazyLoading: options.useLazyLoading,
+  });
 }
 
 export async function fetchImageFromUrl(
@@ -169,6 +187,7 @@ export async function fetchImageFromUrl(
   options: ImageOptions = {
     getFullCaption: false,
     useCache: true,
+    useLazyLoading: true,
   }
 ) {
   const slug = parseSlugFromUrl(url);
@@ -179,26 +198,28 @@ type PostOptions = {
   useTestSite?: boolean;
   useCache?: boolean;
   getImage?: boolean;
-  getFullImageCaption?: boolean;
+  getImageFullCaption?: boolean;
+  useImageLazyLoading?: boolean;
 };
 
 export async function fetchPostFromSlug(
   slug: string,
-  { useTestSite, useCache, getImage, getFullImageCaption }: PostOptions = {
+  options: PostOptions = {
     useTestSite: false,
     useCache: true,
     getImage: true,
-    getFullImageCaption: false,
+    getImageFullCaption: false,
+    useImageLazyLoading: true,
   }
 ) {
   const url = new URL(
-    useTestSite
+    options.useTestSite
       ? "https://md-clone.newspackstaging.com/wp-json/wp/v2/posts"
       : "https://michigandaily.com/wp-json/wp/v2/posts"
   );
   url.searchParams.set("slug", slug);
   url.searchParams.set("_fields", "coauthors,link,title,_links");
-  if (!useCache) {
+  if (!options.useCache) {
     url.searchParams.set("time", new Date().toISOString());
   }
 
@@ -214,20 +235,21 @@ export async function fetchPostFromSlug(
 
   const story = data.at(0);
 
-  if (getImage) {
+  if (options.getImage) {
     const [feature] = story._links["wp:featuredmedia"];
 
     const params = new URLSearchParams();
     params.set("_fields", "description");
 
-    if (!useCache) {
+    if (!options.useCache) {
       params.set("time", new Date().toISOString());
     }
 
     const imageRequest = await fetch(`${feature.href}?${params.toString()}`);
     const imageData = await imageRequest.json();
     const image = parseImage(imageData.description.rendered, {
-      getFullCaption: getFullImageCaption,
+      getFullCaption: options.getImageFullCaption,
+      useImageLazyLoading: options.useImageLazyLoading,
     });
 
     return {
@@ -255,7 +277,8 @@ export async function fetchPostFromUrl(
     useTestSite: false,
     useCache: true,
     getImage: true,
-    getFullImageCaption: false,
+    getImageFullCaption: false,
+    useImageLazyLoading: true,
   }
 ) {
   const slug = parseSlugFromUrl(url);
