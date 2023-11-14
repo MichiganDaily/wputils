@@ -1,6 +1,6 @@
 import type { HTMLElement } from "node-html-parser";
 import { parse } from "node-html-parser";
-import { decode } from "he";
+import he from "he";
 
 export type Image = {
   html: string;
@@ -264,7 +264,7 @@ export async function fetchPostFromSlug(
 
   return {
     url: story.link as string,
-    title: decode(story.title.rendered) as string,
+    title: he.decode(story.title.rendered) as string,
     coauthors: joinListOfStrings(
       story.coauthors.map((author) => author.display_name)
     ),
