@@ -7,10 +7,11 @@
   "scripts": {
     "prepare": "tsc"
   },
-  "exports": {
-    ".": "./dist/index.js"
-  },
-  "main": "index.ts",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "devDependencies": {
     "@types/he": "^1.2.2",
