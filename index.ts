@@ -182,6 +182,48 @@ export async function fetchImageFromSlug(
   });
 }
 
+export async function fetchImageFromId(
+  id: string,
+  options: ImageOptions = {
+    getFullCaption: false,
+    useCache: true,
+    useLazyLoading: true,
+  }
+) {
+  const url = new URL("https://michigandaily.com/wp-json/wp/v2/media");
+  url.searchParams.set("media_type", "image");
+  url.searchParams.set("id", id);
+  url.searchParams.set("_fields", "description");
+
+  if (!options.useCache) {
+    url.searchParams.set("time", new Date().toISOString());
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    return null;
+  }
+
+  const json = (await response.json()) as {
+    description: { rendered: string };
+  }[];
+
+  if (json === undefined || json === null || json.length === 0) {
+    return null;
+  }
+
+  const image = json.at(0);
+
+  if (!image) {
+    return null;
+  }
+
+  return parseImage(image.description.rendered, {
+    getFullCaption: options.getFullCaption,
+    useImageLazyLoading: options.useLazyLoading,
+  });
+}
+
 export async function fetchImageFromUrl(
   url: string,
   options: ImageOptions = {
