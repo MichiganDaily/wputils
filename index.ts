@@ -186,8 +186,8 @@ export async function fetchImageFromSlug(
   return await fetchImage(url, options);
 }
 
-export async function fetchImageFromId(
-  id: string,
+export async function fetchImageFromName(
+  name: string,
   options: ImageOptions = {
     getFullCaption: false,
     useCache: true,
@@ -196,7 +196,7 @@ export async function fetchImageFromId(
 ) {
   const url = new URL("https://michigandaily.com/wp-json/wp/v2/media");
   url.searchParams.set("media_type", "image");
-  url.searchParams.set("id", id);
+  url.searchParams.set("search", name);
   url.searchParams.set("_fields", "description");
 
   if (!options.useCache) {
