@@ -1,4 +1,5 @@
 import type { HTMLElement } from "node-html-parser";
+import type { ParsedBlock } from "@wordpress/block-serialization-default-parser";
 import { parse } from "node-html-parser";
 import he from "he";
 
@@ -33,6 +34,64 @@ export type WordPressArticle = {
   _links: {
     "wp:featuredmedia": WordPressFeaturedMedia[];
   };
+};
+
+export type ImageSource = {
+  uri: string;
+  width: number;
+  height: number;
+};
+
+export type ImageData = {
+  id: number;
+  sources: ImageSource[];
+  caption: string;
+  alt: string;
+  position: string; // TODO: from mobile app: clarify possible string values
+};
+
+export type AudioData = { url: string; caption: string };
+
+export type VideoData = {
+  url: string;
+  caption: string;
+  aspectRatio: number;
+};
+
+export type Block = Omit<ParsedBlock, "innerBlocks"> & {
+  innerBlocks: Block[];
+  index: number;
+} & (
+    | { blockName: "core/audio"; data: AudioData | null }
+    | { blockName: "core/video"; data: VideoData | null }
+    | { blockName: "core/image"; data: ImageData | null }
+    | { blockName: "jetpack/image-compare"; data: ImageData[] | null }
+    | { blockName: "jetpack/slideshow"; data: ImageData[] | null }
+    | { blockName: "newspack-blocks/homepage-articles"; data: Article[] | null }
+    | { blockName: string; data: null }
+  );
+
+export type Author = {
+  display_name: string;
+  user_nicename: string;
+};
+
+export type Article = {
+  id: string;
+  permalink: string;
+  category: {
+    parent: string | null;
+    primary: string | null;
+  };
+  title: string;
+  date: string;
+  excerpt: string | null;
+  content: Block[] | null;
+  authors: Author[];
+  image: ImageData | null;
+  estimatedTime: number | null;
+  redirection: string | null;
+  relatedPosts: Article[] | null;
 };
 
 function trim(caption: string): string {
