@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@wordpress/block-serialization-default-parser':
+    specifier: ^4.55.0
+    version: 4.55.0
   he:
     specifier: ^1.2.0
     version: 1.2.0
@@ -22,9 +25,23 @@ devDependencies:
 
 packages:
 
+  /@babel/runtime@7.24.4:
+    resolution: {integrity: sha512-dkxf7+hn8mFBwKjs9bvBlArzLVxVbS8usaPUDd5p2a9JCL9tB8OaOVN1isD4+Xyk4ns89/xeOmbQvgdK7IIVdA==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.14.1
+    dev: false
+
   /@types/he@1.2.2:
     resolution: {integrity: sha512-v2gT1gRK65k9nz8SVSXo3lh7AHnRPL3mRcYNhhsqL/L2S1xt/MGyEI5a7vJPXWik/IxTtAktXf8/HlCxDR1nsw==}
     dev: true
+
+  /@wordpress/block-serialization-default-parser@4.55.0:
+    resolution: {integrity: sha512-5CbUjxpt4YpCFHPwh4whJvt054wK+yYvhcxcKUPIF5Qa+pQF8BvaXy5ufEQ5C4FZiRlyJTRUKeDfUORzdLZmjQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.24.4
+    dev: false
 
   /boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -93,6 +110,10 @@ packages:
     resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
     dependencies:
       boolbase: 1.0.0
+    dev: false
+
+  /regenerator-runtime@0.14.1:
+    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
     dev: false
 
   /typescript@5.2.2:

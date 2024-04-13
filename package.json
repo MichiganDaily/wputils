@@ -18,6 +18,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@wordpress/block-serialization-default-parser": "^4.55.0",
     "he": "^1.2.0",
     "node-html-parser": "^6.1.10"
   }
