@@ -60,7 +60,6 @@ export type VideoData = {
 
 export type Block = Omit<ParsedBlock, "innerBlocks"> & {
   innerBlocks: Block[];
-  innerContent: string[];
   index: number;
 } & (
     | { blockName: "core/audio"; data: AudioData | null }
